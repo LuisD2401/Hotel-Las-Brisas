@@ -22,16 +22,21 @@ class MenuCafeteria extends JFrame {
         add(btnMenu);
         add(btnSalir);
 
-        // Eventos
-        btnComprar.addActionListener(e -> new VentanaCafeteria());
+        // Abrir ventana de compras normalmente
+        btnComprar.addActionListener(e -> {
+            VentanaCafeteria v = new VentanaCafeteria();
+            v.setVisible(true);
+        });
 
+        // Abrir solo gestión SIN crear la ventana de compras
         btnGestionar.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del recepcionista:");
             if (!"marco123".equals(password)) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.");
                 return;
             }
-            new HotelGUI().gestionarProductos(); //Haz pública la función
+
+            VentanaCafeteria.gestionarProductosEstatico();
         });
 
         btnVentas.addActionListener(e -> {
@@ -44,8 +49,8 @@ class MenuCafeteria extends JFrame {
         });
 
         btnMenu.addActionListener(e -> {
-            dispose();
-            new HotelGUI();
+            dispose();      // ← Cierra correctamente esta ventana
+            new HotelGUI(); // ← Abre solo una nueva
         });
 
         btnSalir.addActionListener(e -> System.exit(0));
@@ -53,3 +58,4 @@ class MenuCafeteria extends JFrame {
         setVisible(true);
     }
 }
+

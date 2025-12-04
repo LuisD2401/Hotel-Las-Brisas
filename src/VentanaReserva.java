@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 public class VentanaReserva extends JFrame {
@@ -49,7 +50,8 @@ public class VentanaReserva extends JFrame {
                 Reserva reserva = new Reserva(cliente, seleccionada, dias);
 
                 // Crear venta con número de habitación
-                Venta v = Main.procesarPagoGUI(reserva.total, "Reserva", seleccionada.numero);
+                Venta v = Main.procesarPagoGUI(reserva.total, "Reserva", new ArrayList<>(), new ArrayList<>(), seleccionada.numero);
+
 
                 JOptionPane.showMessageDialog(this,
                         "Reserva realizada:\n" + reserva + "\n\nVenta:\n" + v);
