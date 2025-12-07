@@ -17,8 +17,8 @@ public class VentanaCafeteria extends JFrame {
     }
 
     public VentanaCafeteria() {
-        setTitle("Cafetería");
-        setSize(600, 400);
+        setTitle("Compra de Cafeteria");
+        setSize(700, 850);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -27,18 +27,15 @@ public class VentanaCafeteria extends JFrame {
         panelProductos.setLayout(new BoxLayout(panelProductos, BoxLayout.Y_AXIS));
 
         lblTotal = new JLabel("Total: $0.00");
-        lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTotal.setFont(new Font("Arial", Font.BOLD, 22));
         add(lblTotal, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(panelProductos);
         add(scroll, BorderLayout.CENTER);
 
         // === ICONO PARA EL BOTÓN COMPRAR ===
-        JButton btnComprar = new JButton(
-                "Comprar",
-                UIManager.getIcon("OptionPane.informationIcon")
-        );
-        btnComprar.setFont(new Font("Arial", Font.BOLD, 16));
+        JButton btnComprar = new JButton("Comprar");
+        btnComprar.setFont(new Font("Arial", Font.BOLD, 22));
         add(btnComprar, BorderLayout.SOUTH);
 
         cargarProductos();
