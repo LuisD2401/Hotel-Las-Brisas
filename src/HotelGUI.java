@@ -6,7 +6,7 @@ public class HotelGUI extends JFrame {
 
     public HotelGUI() {
         setTitle("APLICACION HOTEL LAS BRISAS");
-        setSize(800, 500);
+        setSize(1500, 1000);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(5, 1, 10, 10));

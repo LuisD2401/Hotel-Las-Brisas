@@ -12,7 +12,7 @@ public class VentanaCafeteria extends JFrame {
 
     public static void gestionarProductosEstatico() {
         VentanaCafeteria v = new VentanaCafeteria();
-        v.setVisible(false);      // ← Nunca se muestra la ventana de compras
+        v.setVisible(false);
         v.abrirGestionProductos();
     }
 
@@ -33,7 +33,12 @@ public class VentanaCafeteria extends JFrame {
         JScrollPane scroll = new JScrollPane(panelProductos);
         add(scroll, BorderLayout.CENTER);
 
-        JButton btnComprar = new JButton("Comprar");
+        // === ICONO PARA EL BOTÓN COMPRAR ===
+        JButton btnComprar = new JButton(
+                "Comprar",
+                UIManager.getIcon("OptionPane.informationIcon")
+        );
+        btnComprar.setFont(new Font("Arial", Font.BOLD, 16));
         add(btnComprar, BorderLayout.SOUTH);
 
         cargarProductos();
@@ -97,28 +102,29 @@ public class VentanaCafeteria extends JFrame {
             c.gridy = 0;
             c.anchor = GridBagConstraints.WEST;
 
-            // ---- NOMBRE ----
+            // === NOMBRE CON ÍCONO DE PRODUCTO ===
             c.gridx = 0;
             JLabel lblNombre = new JLabel(p.nombre);
-            lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
-            lblNombre.setPreferredSize(new Dimension(180, 25));
+
+            lblNombre.setFont(new Font("Arial", Font.BOLD, 20));
+            lblNombre.setPreferredSize(new Dimension(200, 25));
             fila.add(lblNombre, c);
 
-            // ---- PRECIO ----
+            // PRECIO
             c.gridx = 1;
             JLabel lblPrecio = new JLabel("$" + (int)p.precio);
-            lblPrecio.setFont(new Font("Arial", Font.PLAIN, 16));
+            lblPrecio.setFont(new Font("Arial", Font.PLAIN, 20));
             lblPrecio.setPreferredSize(new Dimension(80, 25));
             fila.add(lblPrecio, c);
 
-            // ---- STOCK ----
+            // STOCK
             c.gridx = 2;
             JLabel lblStock = new JLabel("Stock: " + p.stock);
-            lblStock.setFont(new Font("Arial", Font.PLAIN, 16));
-            lblStock.setPreferredSize(new Dimension(100, 25));
+            lblStock.setFont(new Font("Arial", Font.PLAIN, 20));
+            lblStock.setPreferredSize(new Dimension(120, 25));
             fila.add(lblStock, c);
 
-            // ---- SPINNER ----
+            // SPINNER
             c.gridx = 3;
             JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, p.stock, 1));
             spinner.setPreferredSize(new Dimension(60, 25));
@@ -139,27 +145,6 @@ public class VentanaCafeteria extends JFrame {
         actualizarTotal();
     }
 
-
-    private void actualizarTotalTabla(JTable tabla) {
-        double total = 0;
-
-        for (int i = 0; i < tabla.getRowCount(); i++) {
-            Object val = tabla.getValueAt(i, 3);
-            int cantidad = 0;
-
-            try {
-                cantidad = Integer.parseInt(val.toString());
-            } catch (Exception ignored) {}
-
-            ProductoCafeteria p = productosMostrados.get(i);
-            total += cantidad * p.precio;
-        }
-
-        lblTotal.setText("Total: $" + String.format("%.0f", total));
-    }
-
-
-
     private void actualizarTotal() {
         double total = 0;
 
@@ -171,10 +156,11 @@ public class VentanaCafeteria extends JFrame {
 
         lblTotal.setText("Total: $" + String.format("%.2f", total));
     }
+
     public void abrirGestionProductos() {
 
         JFrame ventana = new JFrame("Gestionar Productos");
-        ventana.setSize(700, 500);
+        ventana.setSize(900, 600);
         ventana.setLocationRelativeTo(null);
         ventana.setLayout(new BorderLayout());
 
@@ -189,46 +175,40 @@ public class VentanaCafeteria extends JFrame {
             for (ProductoCafeteria p : Main.productos) {
 
                 JPanel fila = new JPanel(new GridBagLayout());
-                fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // margen bonito
+                fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 GridBagConstraints c = new GridBagConstraints();
                 c.gridx = 0;
                 c.gridy = 0;
                 c.anchor = GridBagConstraints.WEST;
 
-                // Columna 1: Nombre (más grande)
+                // NOMBRE
                 JLabel lblNombre = new JLabel(p.nombre);
-                lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
+                lblNombre.setFont(new Font("Arial", Font.BOLD, 22));
                 lblNombre.setPreferredSize(new Dimension(200, 25));
                 fila.add(lblNombre, c);
 
-                // Columna 2: Precio
+                // PRECIO
                 c.gridx++;
                 JLabel lblPrecio = new JLabel("$" + String.format("%.0f", p.precio));
-                lblPrecio.setFont(new Font("Arial", Font.PLAIN, 16));
+                lblPrecio.setFont(new Font("Arial", Font.PLAIN, 22));
                 lblPrecio.setPreferredSize(new Dimension(100, 25));
                 fila.add(lblPrecio, c);
 
-                // Columna 3: Stock
+                // STOCK
                 c.gridx++;
                 JLabel lblStock = new JLabel("Stock: " + p.stock);
-                lblStock.setFont(new Font("Arial", Font.PLAIN, 16));
+                lblStock.setFont(new Font("Arial", Font.PLAIN, 22));
                 lblStock.setPreferredSize(new Dimension(120, 25));
                 fila.add(lblStock, c);
 
-                // Columna 4: Botones (-5, -, +, +5)
+                // BOTONERA CON ICONOS
                 c.gridx++;
                 JPanel botonera = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-                JButton btnMinus5 = new JButton("-5");
-                JButton btnMinus = new JButton("-");
-                JButton btnPlus = new JButton("+");
-                JButton btnPlus5 = new JButton("+5");
-
-                Font fBtn = new Font("Arial", Font.BOLD, 14);
-                btnMinus5.setFont(fBtn);
-                btnMinus.setFont(fBtn);
-                btnPlus.setFont(fBtn);
-                btnPlus5.setFont(fBtn);
+                JButton btnMinus5 = new JButton("-5", UIManager.getIcon("Tree.closedIcon"));
+                JButton btnMinus = new JButton("-", UIManager.getIcon("Tree.closedIcon"));
+                JButton btnPlus = new JButton("+", UIManager.getIcon("Tree.openIcon"));
+                JButton btnPlus5 = new JButton("+5", UIManager.getIcon("Tree.openIcon"));
 
                 botonera.add(btnMinus5);
                 botonera.add(btnMinus);
@@ -237,7 +217,7 @@ public class VentanaCafeteria extends JFrame {
 
                 fila.add(botonera, c);
 
-                // --- ACCIONES ---
+                // ACCIONES
                 btnPlus.addActionListener(ev -> {
                     p.stock++;
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
@@ -269,12 +249,18 @@ public class VentanaCafeteria extends JFrame {
             panel.repaint();
         };
 
-
         construirFilas.run();
 
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        JButton btnAgregar = new JButton("Agregar Producto");
+        // ==== BOTÓN AGREGAR CON ICONO ====
+        ImageIcon iconAgregar = new ImageIcon(
+                getClass().getResource("/imagen/agregar-archivo.png") // <-- tu icono aquí
+        );
+
+        JButton btnAgregar = new JButton("Agregar Producto", iconAgregar);
+
+
         btnAgregar.addActionListener(e -> {
             JTextField nombre = new JTextField();
             JTextField precio = new JTextField();
@@ -302,9 +288,17 @@ public class VentanaCafeteria extends JFrame {
                 }
             }
         });
+
         botones.add(btnAgregar);
 
-        JButton btnEliminar = new JButton("Eliminar Producto");
+        // ==== BOTÓN ELIMINAR CON ICONO ====
+        ImageIcon iconEliminar = new ImageIcon(
+                getClass().getResource("/imagen/eliminar.png") // Asegúrate: carpeta 'imagen'
+        );
+
+        JButton btnEliminar = new JButton("Eliminar Producto", iconEliminar);
+
+
         btnEliminar.addActionListener(e -> {
             String[] nombres = Main.productos.stream().map(p -> p.nombre).toArray(String[]::new);
 
@@ -313,8 +307,11 @@ public class VentanaCafeteria extends JFrame {
                 return;
             }
 
-            String seleccionado = (String) JOptionPane.showInputDialog(ventana, "Seleccione producto a eliminar:",
-                    "Eliminar", JOptionPane.QUESTION_MESSAGE, null, nombres, nombres[0]);
+            String seleccionado = (String) JOptionPane.showInputDialog(
+                    ventana, "Seleccione producto a eliminar:",
+                    "Eliminar", JOptionPane.QUESTION_MESSAGE,
+                    null, nombres, nombres[0]
+            );
             if (seleccionado == null) return;
 
             ProductoCafeteria remove = null;
@@ -323,7 +320,11 @@ public class VentanaCafeteria extends JFrame {
             }
 
             if (remove != null) {
-                int ok = JOptionPane.showConfirmDialog(ventana, "¿Eliminar " + remove.nombre + "?", "Confirmar", JOptionPane.YES_NO_OPTION);
+                int ok = JOptionPane.showConfirmDialog(ventana,
+                        "¿Eliminar " + remove.nombre + "?",
+                        "Confirmar",
+                        JOptionPane.YES_NO_OPTION);
+
                 if (ok == JOptionPane.YES_OPTION) {
                     Main.productos.remove(remove);
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
@@ -331,14 +332,46 @@ public class VentanaCafeteria extends JFrame {
                 }
             }
         });
+
         botones.add(btnEliminar);
 
-        JButton btnCerrar = new JButton("Cerrar");
+        // ==== BOTÓN CERRAR CON ICONO ====
+        ImageIcon iconCerrar = new ImageIcon(
+                getClass().getResource("/imagen/cancelar.png") // <-- tu icono aquí
+        );
+
+        JButton btnCerrar = new JButton("Cerrar", iconCerrar);
         btnCerrar.addActionListener(e -> ventana.dispose());
+
         botones.add(btnCerrar);
 
         ventana.add(botones, BorderLayout.SOUTH);
         ventana.setVisible(true);
     }
+    // usa getResource (empaquetado en JAR)
+    private ImageIcon cargarIcono(String resourcePath, int w, int h) {
+        try {
+            java.net.URL url = getClass().getResource(resourcePath);
+            if (url == null) return null;
+            ImageIcon original = new ImageIcon(url);
+            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // alternativa por archivo (sólo durante desarrollo, evita en JAR)
+    private ImageIcon cargarIconoArchivo(String path, int w, int h) {
+        try {
+            ImageIcon original = new ImageIcon(path);
+            if (original.getIconWidth() == -1) return null;
+            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
 }

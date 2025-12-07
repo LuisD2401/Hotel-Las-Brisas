@@ -55,7 +55,6 @@ public class Main {
         String medioPago = (String) JOptionPane.showInputDialog(
                 null, "Seleccione medio de pago:", "Pago",
                 JOptionPane.QUESTION_MESSAGE, null, pagos, pagos[0]);
-
         if (medioPago == null) return null;
 
         double montoPagado = montoTotal;
