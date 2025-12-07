@@ -83,6 +83,7 @@ public class VentanaCafeteria extends JFrame {
     }
 
     private void cargarProductos() {
+
         panelProductos.removeAll();
         spinners.clear();
         productosMostrados.clear();
@@ -90,27 +91,74 @@ public class VentanaCafeteria extends JFrame {
         for (ProductoCafeteria p : Main.productos) {
             if (p.stock <= 0) continue;
 
-            JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel fila = new JPanel(new GridBagLayout());
+            fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridy = 0;
+            c.anchor = GridBagConstraints.WEST;
 
-            JLabel lblNombre = new JLabel(p.nombre + " - $" + p.precio + " - Stock: " + p.stock);
+            // ---- NOMBRE ----
+            c.gridx = 0;
+            JLabel lblNombre = new JLabel(p.nombre);
+            lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
+            lblNombre.setPreferredSize(new Dimension(180, 25));
+            fila.add(lblNombre, c);
+
+            // ---- PRECIO ----
+            c.gridx = 1;
+            JLabel lblPrecio = new JLabel("$" + (int)p.precio);
+            lblPrecio.setFont(new Font("Arial", Font.PLAIN, 16));
+            lblPrecio.setPreferredSize(new Dimension(80, 25));
+            fila.add(lblPrecio, c);
+
+            // ---- STOCK ----
+            c.gridx = 2;
+            JLabel lblStock = new JLabel("Stock: " + p.stock);
+            lblStock.setFont(new Font("Arial", Font.PLAIN, 16));
+            lblStock.setPreferredSize(new Dimension(100, 25));
+            fila.add(lblStock, c);
+
+            // ---- SPINNER ----
+            c.gridx = 3;
             JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, p.stock, 1));
+            spinner.setPreferredSize(new Dimension(60, 25));
+            spinner.setFont(new Font("Arial", Font.PLAIN, 16));
 
             spinners.add(spinner);
             productosMostrados.add(p);
 
             spinner.addChangeListener(e -> actualizarTotal());
 
-            panel.add(lblNombre);
-            panel.add(new JLabel("Cantidad:"));
-            panel.add(spinner);
+            fila.add(spinner, c);
 
-            panelProductos.add(panel);
+            panelProductos.add(fila);
         }
 
         panelProductos.revalidate();
         panelProductos.repaint();
         actualizarTotal();
     }
+
+
+    private void actualizarTotalTabla(JTable tabla) {
+        double total = 0;
+
+        for (int i = 0; i < tabla.getRowCount(); i++) {
+            Object val = tabla.getValueAt(i, 3);
+            int cantidad = 0;
+
+            try {
+                cantidad = Integer.parseInt(val.toString());
+            } catch (Exception ignored) {}
+
+            ProductoCafeteria p = productosMostrados.get(i);
+            total += cantidad * p.precio;
+        }
+
+        lblTotal.setText("Total: $" + String.format("%.0f", total));
+    }
+
+
 
     private void actualizarTotal() {
         double total = 0;
@@ -139,47 +187,80 @@ public class VentanaCafeteria extends JFrame {
             panel.removeAll();
 
             for (ProductoCafeteria p : Main.productos) {
-                JPanel fila = new JPanel();
-                fila.setLayout(new BorderLayout(10, 0)); // separación horizontal entre componentes
-                fila.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35)); // altura fija
 
-                JLabel lblInfo = new JLabel(p.nombre + "  —  $" + String.format("%.2f", p.precio) + "  —  Stock: " + p.stock);
+                JPanel fila = new JPanel(new GridBagLayout());
+                fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10)); // margen bonito
+                GridBagConstraints c = new GridBagConstraints();
+                c.gridx = 0;
+                c.gridy = 0;
+                c.anchor = GridBagConstraints.WEST;
 
-                JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+                // Columna 1: Nombre (más grande)
+                JLabel lblNombre = new JLabel(p.nombre);
+                lblNombre.setFont(new Font("Arial", Font.BOLD, 16));
+                lblNombre.setPreferredSize(new Dimension(200, 25));
+                fila.add(lblNombre, c);
+
+                // Columna 2: Precio
+                c.gridx++;
+                JLabel lblPrecio = new JLabel("$" + String.format("%.0f", p.precio));
+                lblPrecio.setFont(new Font("Arial", Font.PLAIN, 16));
+                lblPrecio.setPreferredSize(new Dimension(100, 25));
+                fila.add(lblPrecio, c);
+
+                // Columna 3: Stock
+                c.gridx++;
+                JLabel lblStock = new JLabel("Stock: " + p.stock);
+                lblStock.setFont(new Font("Arial", Font.PLAIN, 16));
+                lblStock.setPreferredSize(new Dimension(120, 25));
+                fila.add(lblStock, c);
+
+                // Columna 4: Botones (-5, -, +, +5)
+                c.gridx++;
+                JPanel botonera = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+
                 JButton btnMinus5 = new JButton("-5");
                 JButton btnMinus = new JButton("-");
                 JButton btnPlus = new JButton("+");
                 JButton btnPlus5 = new JButton("+5");
 
-                // acciones
+                Font fBtn = new Font("Arial", Font.BOLD, 14);
+                btnMinus5.setFont(fBtn);
+                btnMinus.setFont(fBtn);
+                btnPlus.setFont(fBtn);
+                btnPlus5.setFont(fBtn);
+
+                botonera.add(btnMinus5);
+                botonera.add(btnMinus);
+                botonera.add(btnPlus);
+                botonera.add(btnPlus5);
+
+                fila.add(botonera, c);
+
+                // --- ACCIONES ---
                 btnPlus.addActionListener(ev -> {
                     p.stock++;
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
-                    lblInfo.setText(p.nombre + "  —  $" + String.format("%.2f", p.precio) + "  —  Stock: " + p.stock);
+                    lblStock.setText("Stock: " + p.stock);
                 });
+
                 btnMinus.addActionListener(ev -> {
                     if (p.stock > 0) p.stock--;
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
-                    lblInfo.setText(p.nombre + "  —  $" + String.format("%.2f", p.precio) + "  —  Stock: " + p.stock);
+                    lblStock.setText("Stock: " + p.stock);
                 });
+
                 btnPlus5.addActionListener(ev -> {
                     p.stock += 5;
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
-                    lblInfo.setText(p.nombre + "  —  $" + String.format("%.2f", p.precio) + "  —  Stock: " + p.stock);
+                    lblStock.setText("Stock: " + p.stock);
                 });
+
                 btnMinus5.addActionListener(ev -> {
                     p.stock = Math.max(0, p.stock - 5);
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
-                    lblInfo.setText(p.nombre + "  —  $" + String.format("%.2f", p.precio) + "  —  Stock: " + p.stock);
+                    lblStock.setText("Stock: " + p.stock);
                 });
-
-                panelBotones.add(btnMinus5);
-                panelBotones.add(btnMinus);
-                panelBotones.add(btnPlus);
-                panelBotones.add(btnPlus5);
-
-                fila.add(lblInfo, BorderLayout.CENTER);
-                fila.add(panelBotones, BorderLayout.EAST);
 
                 panel.add(fila);
             }
@@ -187,6 +268,7 @@ public class VentanaCafeteria extends JFrame {
             panel.revalidate();
             panel.repaint();
         };
+
 
         construirFilas.run();
 
