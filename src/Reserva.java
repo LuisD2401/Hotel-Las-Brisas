@@ -1,6 +1,6 @@
 import java.io.Serializable;
 
-class Reserva implements Serializable {
+public class Reserva implements Serializable {
     String cliente;
     Habitacion habitacion;
     int dias;

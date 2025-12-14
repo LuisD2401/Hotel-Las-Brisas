@@ -2,7 +2,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-class CompraCafeteria implements Serializable {
+public class CompraCafeteria implements Serializable {
     List<ProductoCafeteria> productos = new ArrayList<>();
 
     public void agregarProducto(ProductoCafeteria p) {

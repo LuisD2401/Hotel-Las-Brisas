@@ -11,7 +11,6 @@ public class Main {
     public static final String ARCHIVO_HABITACIONES = "habitaciones.dat";
     public static final String ARCHIVO_PRODUCTOS = "productos.dat";
     public static final String ARCHIVO_VENTAS = "ventas.dat";
-
     public static void main(String[] args) {
         cargarDatos();
         inicializarHabitaciones();

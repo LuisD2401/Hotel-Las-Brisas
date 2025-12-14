@@ -1,6 +1,6 @@
 import java.io.Serializable;
 
-class Habitacion implements Serializable {
+public class Habitacion implements Serializable {
     int numero;
     String tipo;
     double precio;

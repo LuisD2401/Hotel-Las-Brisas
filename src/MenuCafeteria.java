@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 
-class MenuCafeteria extends JFrame {
+public class MenuCafeteria extends JFrame {
 
     public MenuCafeteria() {
         setTitle("Menú Cafetería");
@@ -66,9 +66,19 @@ class MenuCafeteria extends JFrame {
         //            ACCIONES
         // ===============================
         btnComprar.addActionListener(e -> {
-            VentanaCafeteria v = new VentanaCafeteria();
-            v.setVisible(true);
+            dispose(); // Cierra esta ventana
+
+            // Crear carrito compartido
+            Carrito carrito = new Carrito();
+
+            // Abrir ventana de categorías pasándole el carrito
+            CategoriasCafeteria categorias = new CategoriasCafeteria(carrito);
+            categorias.setVisible(true);
+
+            // Abrir también la ventana del carrito
+            carrito.setVisible(true);
         });
+
 
         btnGestionar.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del recepcionista:");

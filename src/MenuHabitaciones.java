@@ -2,7 +2,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
-class MenuHabitaciones extends JFrame {
+public class MenuHabitaciones extends JFrame {
 
     public MenuHabitaciones() {
         setTitle("Menú Habitaciones");

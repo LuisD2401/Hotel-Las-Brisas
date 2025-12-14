@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-class Persistencia {
+public class Persistencia {
     static List<Venta> ventas = new ArrayList<>();
     private static final String ARCHIVO_VENTAS = "ventas.dat";
 

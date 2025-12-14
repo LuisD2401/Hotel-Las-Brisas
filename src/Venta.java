@@ -3,7 +3,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Venta implements Serializable {
+public class Venta{
 
     double monto;
     String tipo;
