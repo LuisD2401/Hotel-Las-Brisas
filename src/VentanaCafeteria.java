@@ -20,7 +20,7 @@ public class VentanaCafeteria extends JFrame {
         if (!soloGestion) return;
 
         setTitle("Gestionar Productos");
-        setSize(900, 600);
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
@@ -30,34 +30,55 @@ public class VentanaCafeteria extends JFrame {
 
     public VentanaCafeteria() {
 
-        setTitle("Comprar en Cafetería");
-        setSize(900, 700);
+        setTitle("Venta Cafeteria");
+        setSize(1000, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
+        // ===============================
+        // COLOR DE FONDO DE LA VENTANA
+        // ===============================
+        getContentPane().setBackground(new Color(220, 245, 250)); // Fondo de JFrame
+
+        // ===============================
+        // PANEL DE PRODUCTOS
+        // ===============================
         panelProductos = new JPanel();
         panelProductos.setLayout(new BoxLayout(panelProductos, BoxLayout.Y_AXIS));
+        panelProductos.setBackground(new Color(220, 245, 250)); // Fondo del panel
+
         JScrollPane scroll = new JScrollPane(panelProductos);
+        scroll.getViewport().setBackground(new Color(220, 245, 250)); // Fondo del scroll
         add(scroll, BorderLayout.CENTER);
 
+        // ===============================
+        // LABEL TOTAL
+        // ===============================
         lblTotal = new JLabel("Total: $0.00");
         lblTotal.setFont(new Font("Arial", Font.BOLD, 22));
         lblTotal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        lblTotal.setOpaque(true); // necesario para que se vea el color si quieres cambiarlo
+        lblTotal.setBackground(new Color(220, 245, 250)); // mismo color que fondo
         add(lblTotal, BorderLayout.NORTH);
 
+        // ===============================
+        // PANEL SUR BOTONES
+        // ===============================
         JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        panelSur.setBackground(new Color(220, 245, 250)); // Fondo del panel de botones
 
         JButton btnFinalizar = new JButton("Finalizar Compra");
         btnFinalizar.setFont(new Font("Arial", Font.BOLD, 22));
         panelSur.add(btnFinalizar);
-
         add(panelSur, BorderLayout.SOUTH);
 
+        // ===============================
+        // FUNCIONALIDAD
+        // ===============================
         cargarProductos();   // 👈 MUY IMPORTANTE
         actualizarTotal();   // 👈
 
-        // Actualizar total cuando cambia un spinner
         for (JSpinner sp : spinners) {
             sp.addChangeListener(e -> actualizarTotal());
         }
@@ -66,6 +87,7 @@ public class VentanaCafeteria extends JFrame {
 
         setVisible(true);
     }
+
 
 
     private void actualizarTotal() {
@@ -80,13 +102,21 @@ public class VentanaCafeteria extends JFrame {
 
     public void abrirGestionProductos() {
         JFrame ventana = new JFrame("Gestionar Productos");
-        ventana.setSize(900, 600);
+        ventana.setSize(1000, 700);
         ventana.setLocationRelativeTo(null);
         ventana.setLayout(new BorderLayout());
+
+        // Cambiar el fondo del JFrame
+        ventana.getContentPane().setBackground(new Color(220, 245, 250));
+
+        // Panel principal donde van las filas
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(220, 245, 250)); // <- fondo del panel
         JScrollPane scroll = new JScrollPane(panel);
+        scroll.getViewport().setBackground(new Color(220, 245, 250)); // <- fondo del scroll
         ventana.add(scroll, BorderLayout.CENTER);
+
         Runnable construirFilas = () -> {
             panel.removeAll();
             for (ProductoCafeteria p : Main.productos) {
@@ -152,8 +182,14 @@ public class VentanaCafeteria extends JFrame {
             panel.repaint();
         };
         construirFilas.run();
+
+        // Panel inferior con botones
         JPanel botones = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        // ==== BOTÓN AGREGAR CON ICONO ====
+        botones.setBackground(new Color(220, 245, 250));
+
+        ventana.add(botones, BorderLayout.SOUTH);
+        ventana.setVisible(true);
+    // ==== BOTÓN AGREGAR CON ICONO ====
         ImageIcon iconAgregar = new ImageIcon(getClass().getResource("/imagen/agregar-archivo.png") // <-- tu icono aquí
         );
         JButton btnAgregar = new JButton("Agregar Producto", iconAgregar);
@@ -228,11 +264,14 @@ public class VentanaCafeteria extends JFrame {
         spinners.clear();
         productosMostrados.clear();
 
+        Color colorFondo = new Color(220, 245, 250);
+
         for (ProductoCafeteria p : Main.productos) {
             if (p.stock <= 0) continue;  // Omitir productos sin stock
 
             JPanel fila = new JPanel(new GridBagLayout());
             fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            fila.setBackground(colorFondo); // ✅ Color de fondo de cada fila
             GridBagConstraints c = new GridBagConstraints();
             c.gridy = 0;
             c.anchor = GridBagConstraints.WEST;
@@ -380,13 +419,13 @@ public class VentanaCafeteria extends JFrame {
         );
         // ===== REGISTRAR VENTA =====
         ArrayList<ProductoCafeteria> vendidos = new ArrayList<>();
-        ArrayList<Integer> cantidades = new ArrayList<>();
+        ArrayList<Integer> cantidadesVendidas = new ArrayList<>();
 
         for (int i = 0; i < spinners.size(); i++) {
             int cant = (int) spinners.get(i).getValue();
             if (cant > 0) {
                 vendidos.add(productosMostrados.get(i));
-                cantidades.add(cant);
+                cantidadesVendidas.add(cant);
             }
         }
 
@@ -395,10 +434,10 @@ public class VentanaCafeteria extends JFrame {
                 "Cafetería",
                 pago == 0 ? "Efectivo" : "Débito",
                 "Boleta",
-                -1,
-                vendidos,
-                cantidades
+                vendidos,          // solo los productos comprados
+                cantidadesVendidas // solo cantidades correspondientes
         );
+
 
         Main.ventas.add(venta);
         Persistencia.guardar(Main.ventas, Main.ARCHIVO_VENTAS);

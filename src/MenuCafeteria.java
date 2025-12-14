@@ -48,7 +48,7 @@ public class MenuCafeteria extends JFrame {
         panel.setBorder(BorderFactory.createEmptyBorder(60, 200, 60, 200));
 
         // Botones
-        JButton btnComprar = crearBoton("Comprar en Cafetería", "pago.png");
+        JButton btnComprar = crearBoton("Venta en Cafeteria", "pago.png");
         JButton btnGestionar = crearBoton("Gestionar Productos", "listadoPago.png");
         JButton btnVentas = crearBoton("Ver Ventas", "recoleccion-de-datos.png");
         JButton btnMenu = crearBoton("Volver al Menú Principal", "volver.png");
@@ -72,7 +72,7 @@ public class MenuCafeteria extends JFrame {
 
         btnGestionar.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del recepcionista:");
-            if (!"brisitas2005".equals(password)) {
+            if (!"123".equals(password)) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.");
                 return;
             }
@@ -81,7 +81,7 @@ public class MenuCafeteria extends JFrame {
 
         btnVentas.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del vendedor:");
-            if (!"brisitas2005".equals(password)) {
+            if (!"123".equals(password)) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.");
                 return;
             }

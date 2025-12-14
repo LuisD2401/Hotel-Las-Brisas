@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import javax.swing.text.*;
 
 public class VentanaReserva extends JFrame {
 
@@ -15,6 +16,7 @@ public class VentanaReserva extends JFrame {
         setLayout(new BorderLayout());
         getContentPane().setBackground(new Color(220, 245, 250));
 
+
         // ===============================
         // FORMULARIO
         // ===============================
@@ -27,9 +29,49 @@ public class VentanaReserva extends JFrame {
         c.anchor = GridBagConstraints.WEST;
 
         JTextField txtRut = new JTextField(14);
+        txtRut.setFont(new Font("Arial", Font.PLAIN, 16));
+
         JTextField txtNombres = new JTextField(14);
+        txtNombres.setFont(new Font("Arial", Font.PLAIN, 16));
+
         JTextField txtApellidos = new JTextField(14);
-        JTextField txtTelefono = new JTextField("+56 ");
+        txtApellidos.setFont(new Font("Arial", Font.PLAIN, 16));
+
+        JTextField txtTelefono = new JTextField("+56 ", 14);
+        txtTelefono.setFont(new Font("Arial", Font.PLAIN, 16));
+        ((AbstractDocument) txtTelefono.getDocument()).setDocumentFilter(new DocumentFilter() {
+            private final String prefijo = "+56 ";
+
+            @Override
+            public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+                if (offset < prefijo.length()) {
+                    if (offset + length > prefijo.length()) {
+                        super.remove(fb, prefijo.length(), offset + length - prefijo.length());
+                    }
+                } else {
+                    super.remove(fb, offset, length);
+                }
+            }
+
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (offset < prefijo.length()) offset = prefijo.length();
+                super.insertString(fb, offset, string, attr);
+            }
+
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (offset < prefijo.length()) {
+                    if (offset + length > prefijo.length()) {
+                        int extra = offset + length - prefijo.length();
+                        super.replace(fb, prefijo.length(), extra, text, attrs);
+                    }
+                } else {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
         JTextField txtDias = new JTextField(5);
 
         comboHabitaciones = new JComboBox<>();
@@ -129,8 +171,8 @@ public class VentanaReserva extends JFrame {
                 String nombreCompleto = nombres + " " + apellidos;
                 double total = h.precio * dias;
 
-// 👉 PROCESAR PAGO
-                Object[] pago = procesarPagoReserva(total);
+// 👉 PAGO
+                Object[] pago = Main.procesarPago(total);
                 if (pago == null) return;
 
                 String medioPago = (String) pago[0];
@@ -140,7 +182,7 @@ public class VentanaReserva extends JFrame {
 // 👉 CREAR VENTA
                 VentaHabitacion venta = new VentaHabitacion(
                         rut,
-                        nombreCompleto,
+                        nombres + " " + apellidos,
                         telefono,
                         h,
                         dias,
@@ -150,14 +192,17 @@ public class VentanaReserva extends JFrame {
                         vuelto
                 );
 
+// 👉 GUARDAR
                 Main.ventasHabitaciones.add(venta);
-                Persistencia.guardar(
-                        Main.ventasHabitaciones,
-                        Main.ARCHIVO_VENTAS_HABITACIONES
+                Persistencia.guardar(Main.ventasHabitaciones, Main.ARCHIVO_VENTAS_HABITACIONES);
+
+// 👉 BOLETA VISUAL
+                JOptionPane.showMessageDialog(
+                        this,
+                        venta.toString(),
+                        "Boleta Reserva",
+                        JOptionPane.INFORMATION_MESSAGE
                 );
-
-                mostrarBoletaReserva(venta);
-
                 dispose();
                 new MenuHabitaciones();
 

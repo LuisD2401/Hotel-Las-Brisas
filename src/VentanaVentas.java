@@ -8,13 +8,13 @@ public class VentanaVentas extends JFrame {
     private java.util.List<Venta> ventasCafeteria;
     private DefaultTableModel modelo;
     private JTable tabla;
-
     public VentanaVentas() {
         setTitle("Ventas Cafetería");
         setSize(850, 450);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
+
 
         // Modelo de tabla: Tipo | Monto | Fecha y Hora | Ver Boleta | Eliminar
         modelo = new DefaultTableModel(new Object[]{"Tipo", "Monto", "Fecha y Hora", "Ver Boleta", "Eliminar"}, 0) {
@@ -38,7 +38,15 @@ public class VentanaVentas extends JFrame {
         tabla.getColumn("Eliminar").setCellEditor(new ButtonEditor(new JCheckBox(), false));
 
         add(new JScrollPane(tabla), BorderLayout.CENTER);
+        JPanel panelPrincipal = new JPanel(new BorderLayout());
+        panelPrincipal.setBackground(new Color(220, 245, 250)); // color de fondo
+        panelPrincipal.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        add(panelPrincipal, BorderLayout.CENTER);
+        tabla.setBackground(new Color(220, 245, 250));
+        tabla.setFillsViewportHeight(true); // para que el color del fondo llegue a todo
+        ((JScrollPane) tabla.getParent().getParent()).getViewport().setBackground(new Color(220, 245, 250));
         setVisible(true);
+
     }
 
     private void cargarTabla() {
@@ -87,11 +95,13 @@ public class VentanaVentas extends JFrame {
 
             button.addActionListener(e -> {
                 if (verBoleta) {
-                    Venta v = Main.ventas.stream()
-                            .filter(venta -> "Cafetería".equals(venta.tipo))
-                            .toList().get(row);
-
-                    mostrarBoletaGrande(v);
+                    // Verificar que el índice esté dentro del rango de la lista
+                    if (row >= 0 && row < ventasCafeteria.size()) {
+                        Venta v = ventasCafeteria.get(row); // Ahora accede de forma segura
+                        mostrarBoletaGrande(v);
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Índice de venta fuera de rango.");
+                    }
                 } else {
                     eliminarVenta(row);
                 }
@@ -101,12 +111,13 @@ public class VentanaVentas extends JFrame {
         public Component getTableCellEditorComponent(JTable table, Object value,
                                                      boolean isSelected, int row, int column) {
             button.setText((value == null) ? "" : value.toString());
-            this.row = row;
+            this.row = row;  // Asignar el índice de la fila actual
             return button;
         }
 
         public Object getCellEditorValue() { return button.getText(); }
     }
+
 
     private void mostrarBoleta(int fila) {
         if (fila < 0 || fila >= ventasCafeteria.size()) return;
@@ -177,20 +188,15 @@ public class VentanaVentas extends JFrame {
         StringBuilder b = new StringBuilder();
         b.append("====================================\n");
         b.append("        HOTEL LAS BRISAS\n");
-        b.append("              BOLETA\n");
+        b.append("             CAFETERÍA\n");
         b.append("====================================\n\n");
 
         b.append("Fecha: ")
                 .append(v.fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
                 .append("\n");
 
-        b.append("Tipo: ").append(v.tipo).append("\n");
+        b.append("Tipo de venta: ").append(v.tipo).append("\n");
         b.append("Medio de pago: ").append(v.medioPago).append("\n");
-
-        if (v.numeroHabitacion != -1) {
-            b.append("Habitación: ").append(v.numeroHabitacion).append("\n");
-        }
-
         b.append("\n------------------------------------\n");
         b.append("DETALLE\n");
         b.append("------------------------------------\n");
@@ -198,12 +204,11 @@ public class VentanaVentas extends JFrame {
         double total = 0;
         for (int i = 0; i < v.productos.size(); i++) {
             ProductoCafeteria p = v.productos.get(i);
-            int c = v.cantidades.get(i);
-            double sub = p.precio * c;
-            total += sub;
+            int cant = v.cantidades.get(i); // ahora sí usamos la cantidad correcta
+            double subtotal = p.precio * cant;
+            total += subtotal;
 
-            b.append(String.format("%-20s x%2d $%7.2f\n",
-                    p.nombre, c, sub));
+            b.append(String.format("%-20s x%-2d $%6.2f\n", p.nombre, cant, subtotal));
         }
 
         b.append("------------------------------------\n");
@@ -211,6 +216,8 @@ public class VentanaVentas extends JFrame {
 
         if ("Efectivo".equals(v.medioPago)) {
             b.append("Pago en efectivo\n");
+        } else {
+            b.append("Pago con tarjeta\n");
         }
 
         b.append("\n====================================\n");
@@ -232,7 +239,6 @@ public class VentanaVentas extends JFrame {
 
         dialog.setVisible(true);
     }
-
 
 }
 

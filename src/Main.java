@@ -21,15 +21,15 @@ public class Main {
     public static ArrayList<VentaHabitacion> ventasHabitaciones = new ArrayList<>();
     public static Object[] procesarPago(double total) {
 
-        String[] opciones = {"Efectivo", "Débito"};
+        String[] pagos = {"Efectivo", "Tarjeta"};
         String medioPago = (String) JOptionPane.showInputDialog(
                 null,
                 "Seleccione medio de pago:",
                 "Pago",
                 JOptionPane.QUESTION_MESSAGE,
                 null,
-                opciones,
-                opciones[0]
+                pagos,
+                pagos[0]
         );
 
         if (medioPago == null) return null;
@@ -40,20 +40,24 @@ public class Main {
         if (medioPago.equals("Efectivo")) {
             while (true) {
                 String input = JOptionPane.showInputDialog(
-                        "Total a pagar: $" + total + "\nIngrese monto pagado:"
+                        null,
+                        "Total: $" + total + "\nIngrese monto pagado:"
                 );
+
                 if (input == null) return null;
 
                 try {
                     montoPagado = Double.parseDouble(input);
                     if (montoPagado < total) {
-                        JOptionPane.showMessageDialog(null, "Monto insuficiente");
+                        JOptionPane.showMessageDialog(null,
+                                "Monto insuficiente");
                     } else {
                         vuelto = montoPagado - total;
                         break;
                     }
                 } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "Ingrese un monto válido");
+                    JOptionPane.showMessageDialog(null,
+                            "Ingrese un número válido");
                 }
             }
         }
@@ -62,13 +66,15 @@ public class Main {
     }
 
 
+
     public static void cargarDatos() {
         try {
             habitaciones = (ArrayList<Habitacion>) Persistencia.cargar(ARCHIVO_HABITACIONES);
             productos = (ArrayList<ProductoCafeteria>) Persistencia.cargar(ARCHIVO_PRODUCTOS);
             ventas = (ArrayList<Venta>) Persistencia.cargar(ARCHIVO_VENTAS);
+            ventasHabitaciones = (ArrayList<VentaHabitacion>) Persistencia.cargar(ARCHIVO_VENTAS_HABITACIONES);
 
-            // 👇 Asegurar que nunca queden null
+            if (ventasHabitaciones == null) ventasHabitaciones = new ArrayList<>();
             if (habitaciones == null) habitaciones = new ArrayList<>();
             if (productos == null) productos = new ArrayList<>();
             if (ventas == null) ventas = new ArrayList<>();
@@ -130,7 +136,7 @@ public class Main {
 
         // Crear venta
         Venta v = new Venta(montoTotal, tipoVenta, medioPago, "Boleta",
-                numeroHabitacion, productos, cantidades);
+                 productos, cantidades);
 
         ventas.add(v); // <-- ahora nunca será null
         Persistencia.guardar(ventas, ARCHIVO_VENTAS);
@@ -192,4 +198,57 @@ public class Main {
             return null;
         }
     }
+    public static Habitacion getHabitacionPorNumero(int numero) {
+        return habitaciones.stream()
+                .filter(h -> h.numero == numero)
+                .findFirst()
+                .orElse(null);
+    }
+    public static void limpiarReservasAntiguas() {
+
+        // Paso 1: Crear lista de números de habitaciones existentes
+        List<Integer> numerosHabitaciones = new ArrayList<>();
+        for (Habitacion h : habitaciones) {
+            numerosHabitaciones.add(h.numero);
+        }
+
+        // Paso 2: Crear lista temporal de ventas válidas
+        List<VentaHabitacion> ventasValidas = new ArrayList<>();
+
+        for (VentaHabitacion v : ventasHabitaciones) {
+
+            if (v.anulada) continue; // Ignorar ventas ya anuladas
+
+            if (!numerosHabitaciones.contains(v.habitacion.numero)) {
+                // La habitación ya no existe, se elimina
+                System.out.println("Eliminando venta antigua de Hab " + v.habitacion.numero);
+                continue;
+            }
+
+            // Paso 3: Sincronizar estado de la habitación
+            Habitacion h = habitaciones.stream()
+                    .filter(hab -> hab.numero == v.habitacion.numero)
+                    .findFirst()
+                    .orElse(null);
+
+            if (h != null) {
+                h.disponible = false; // Ocupada por la venta
+            }
+
+            ventasValidas.add(v);
+        }
+
+        // Paso 4: Limpiar la lista original y agregar las ventas válidas
+        ventasHabitaciones.clear();
+        ventasHabitaciones.addAll(ventasValidas);
+
+        // Paso 5: Guardar cambios
+        Persistencia.guardar(habitaciones, ARCHIVO_HABITACIONES);
+        Persistencia.guardar(ventasHabitaciones, ARCHIVO_VENTAS_HABITACIONES);
+
+        System.out.println("Limpieza de reservas antiguas completada.");
+    }
+
+
+
 }

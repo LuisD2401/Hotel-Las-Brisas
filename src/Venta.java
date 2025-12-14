@@ -12,20 +12,17 @@ public class Venta implements Serializable {
     public String medioPago;
     public String tipoDocumento;
     public LocalDateTime fecha;
-    public int numeroHabitacion;
 
     public List<ProductoCafeteria> productos;
     public List<Integer> cantidades;
 
     public Venta(double monto, String tipo, String medioPago,
-                 String tipoDocumento, int numeroHabitacion,
-                 List<ProductoCafeteria> productos, List<Integer> cantidades) {
+                 String tipoDocumento, List<ProductoCafeteria> productos, List<Integer> cantidades) {
         this.monto = monto;
         this.tipo = tipo;
         this.medioPago = medioPago;
         this.tipoDocumento = tipoDocumento;
         this.fecha = LocalDateTime.now();
-        this.numeroHabitacion = numeroHabitacion;
         this.productos = new ArrayList<>(productos);
         this.cantidades = new ArrayList<>(cantidades);
     }
