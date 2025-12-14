@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +17,50 @@ public class Main {
         inicializarHabitaciones();
         new HotelGUI();
     }
+    public static final String ARCHIVO_VENTAS_HABITACIONES = "ventas_habitaciones.dat";
+    public static ArrayList<VentaHabitacion> ventasHabitaciones = new ArrayList<>();
+    public static Object[] procesarPago(double total) {
+
+        String[] opciones = {"Efectivo", "Débito"};
+        String medioPago = (String) JOptionPane.showInputDialog(
+                null,
+                "Seleccione medio de pago:",
+                "Pago",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (medioPago == null) return null;
+
+        double montoPagado = total;
+        double vuelto = 0;
+
+        if (medioPago.equals("Efectivo")) {
+            while (true) {
+                String input = JOptionPane.showInputDialog(
+                        "Total a pagar: $" + total + "\nIngrese monto pagado:"
+                );
+                if (input == null) return null;
+
+                try {
+                    montoPagado = Double.parseDouble(input);
+                    if (montoPagado < total) {
+                        JOptionPane.showMessageDialog(null, "Monto insuficiente");
+                    } else {
+                        vuelto = montoPagado - total;
+                        break;
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Ingrese un monto válido");
+                }
+            }
+        }
+
+        return new Object[]{medioPago, montoPagado, vuelto};
+    }
+
 
     public static void cargarDatos() {
         try {
@@ -123,6 +168,28 @@ public class Main {
 
         return v;
     }
+    // usa getResource (empaquetado en JAR)
+    private ImageIcon cargarIcono(String resourcePath, int w, int h) {
+        try {
+            java.net.URL url = getClass().getResource(resourcePath);
+            if (url == null) return null;
+            ImageIcon original = new ImageIcon(url);
+            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // alternativa por archivo (sólo durante desarrollo, evita en JAR)
+    private ImageIcon cargarIconoArchivo(String path, int w, int h) {
+        try {
+            ImageIcon original = new ImageIcon(path);
+            if (original.getIconWidth() == -1) return null;
+            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
+            return new ImageIcon(img);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
-
-

@@ -6,41 +6,83 @@ public class MenuHabitaciones extends JFrame {
 
     public MenuHabitaciones() {
         setTitle("Menú Habitaciones");
-        setSize(400, 400);
+        setSize(1500, 1000);
         setLocationRelativeTo(null);
-        setLayout(new GridLayout(5, 1, 10, 10));
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        JButton btnReservar = new JButton("Reservar Habitación");
-        JButton btnGestionar = new JButton("Gestionar Habitaciones");
-        JButton btnVentas = new JButton("Ver Ventas");
-        JButton btnMenu = new JButton("Volver al Menú Principal");
-        JButton btnSalir = new JButton("Salir");
+        // ===============================
+        //      PANEL SUPERIOR
+        // ===============================
+        JPanel panelSuperior = new JPanel();
+        panelSuperior.setBackground(new Color(178, 224, 216));
+        panelSuperior.setPreferredSize(new Dimension(1500, 150));
+        panelSuperior.setLayout(new FlowLayout(FlowLayout.CENTER, 20, 20));
 
-        add(btnReservar);
-        add(btnGestionar);
-        add(btnVentas);
-        add(btnMenu);
-        add(btnSalir);
+        try {
+            ImageIcon icono = new ImageIcon(getClass().getResource("/imagen/habitacion.png"));
+            Image img = icono.getImage().getScaledInstance(100, 100, Image.SCALE_SMOOTH);
+            panelSuperior.add(new JLabel(new ImageIcon(img)));
+        } catch (Exception e) {
+            System.out.println("⚠ Icono habitacion.png no encontrado");
+        }
 
-        // Eventos
-        btnReservar.addActionListener(e -> new VentanaReserva());
+        JLabel lblTitulo = new JLabel("Habitaciones Hotel Las Brisas");
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 50));
+        panelSuperior.add(lblTitulo);
+
+        add(panelSuperior, BorderLayout.NORTH);
+
+        // ===============================
+        //      PANEL CENTRAL DEGRADADO
+        // ===============================
+        JPanel panel = crearPanelDegradado(
+                new Color(0, 255, 255),
+                new Color(0, 150, 255)
+        );
+
+        panel.setLayout(new GridLayout(5, 1, 20, 20));
+        panel.setBorder(BorderFactory.createEmptyBorder(60, 200, 60, 200));
+
+        JButton btnReservar = crearBoton("Reservar Habitación", "habitacion.png");
+        JButton btnGestionar = crearBoton("Gestionar Habitaciones", "listadoPago.png");
+        JButton btnVentas = crearBoton("Ver Ventas", "recoleccion-de-datos.png");
+        JButton btnMenu = crearBoton("Volver al Menú Principal", "volver.png");
+        JButton btnSalir = crearBoton("Salir", "cancelar.png");
+
+        panel.add(btnReservar);
+        panel.add(btnGestionar);
+        panel.add(btnVentas);
+        panel.add(btnMenu);
+        panel.add(btnSalir);
+
+        add(panel, BorderLayout.CENTER);
+
+        // ===============================
+        //            ACCIONES
+        // ===============================
+        btnReservar.addActionListener(e -> {
+            dispose();
+            new VentanaReserva();
+        });
 
         btnGestionar.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del recepcionista:");
-            if (!"marco123".equals(password)) {
+            if (!"123".equals(password)) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.");
                 return;
             }
-            new MenuHabitaciones().gestionarHabitaciones(); //Necesita que hagas pública la función
+            gestionarHabitaciones();
         });
+
 
         btnVentas.addActionListener(e -> {
             String password = JOptionPane.showInputDialog(this, "Ingrese contraseña del recepcionista:");
-            if (!"marco123".equals(password)) {
+            if (!"123".equals(password)) {
                 JOptionPane.showMessageDialog(this, "Contraseña incorrecta.");
                 return;
             }
+            dispose();
             new VentanaVentas();
         });
 
@@ -53,98 +95,185 @@ public class MenuHabitaciones extends JFrame {
 
         setVisible(true);
     }
-    public void gestionarHabitaciones() {
-        JFrame ventana = new JFrame("Gestión de Habitaciones");
-        ventana.setSize(600, 400);
-        ventana.setLocationRelativeTo(null);
-        ventana.setLayout(new BorderLayout());
 
-        // Tabla de habitaciones
+    // ===============================
+    //  PANEL DEGRADADO
+    // ===============================
+    private JPanel crearPanelDegradado(Color c1, Color c2) {
+        return new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                GradientPaint gp = new GradientPaint(0, 0, c1, 0, getHeight(), c2);
+                g2d.setPaint(gp);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+    }
+
+    // ===============================
+    //  BOTONES GRANDES
+    // ===============================
+    private JButton crearBoton(String texto, String iconoNombre) {
+        JButton btn = new JButton(texto);
+        btn.setFont(new Font("Arial", Font.BOLD, 26));
+
+        try {
+            ImageIcon img = new ImageIcon(getClass().getResource("/imagen/" + iconoNombre));
+            Image esc = img.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
+            btn.setIcon(new ImageIcon(esc));
+        } catch (Exception e) {
+            System.out.println("⚠ Icono no encontrado: " + iconoNombre);
+        }
+
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setIconTextGap(20);
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+
+        return btn;
+    }
+
+    // ===============================
+    //  GESTIÓN (SIN CAMBIOS)
+    // ===============================
+    public void gestionarHabitaciones() {
+
+        JFrame ventana = new JFrame("Gestión de Habitaciones");
+        ventana.setSize(700, 450);
+        ventana.setLocationRelativeTo(this);
+        ventana.setLayout(new BorderLayout());
+        ventana.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        // ===============================
+        //      TABLA
+        // ===============================
         String[] columnas = {"Número", "Tipo", "Precio", "Disponible"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false; // solo lectura
+                return false;
             }
         };
+
         JTable tabla = new JTable(modelo);
+        JScrollPane scroll = new JScrollPane(tabla);
 
         Runnable cargarTabla = () -> {
             modelo.setRowCount(0);
             for (Habitacion h : Main.habitaciones) {
-                Object[] fila = {h.numero, h.tipo, h.precio, h.disponible ? "Sí" : "No"};
-                modelo.addRow(fila);
+                modelo.addRow(new Object[]{
+                        h.numero,
+                        h.tipo,
+                        h.precio,
+                        h.disponible ? "Sí" : "No"
+                });
             }
         };
+
         cargarTabla.run();
 
-        ventana.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        ventana.add(scroll, BorderLayout.CENTER);
 
+        // ===============================
+        //      BOTONES
+        // ===============================
         JPanel panelBotones = new JPanel();
 
         JButton btnAgregar = new JButton("Agregar");
         JButton btnEliminar = new JButton("Eliminar");
+        JButton btnCerrar = new JButton("Cerrar");
 
         panelBotones.add(btnAgregar);
         panelBotones.add(btnEliminar);
+        panelBotones.add(btnCerrar);
+
         ventana.add(panelBotones, BorderLayout.SOUTH);
 
+        // ===============================
+        //      ACCIONES
+        // ===============================
         btnAgregar.addActionListener(e -> {
-            JTextField numero = new JTextField();
-            String[] tipos = {"Sencilla", "Doble", "Suite"};
-            JComboBox<String> tipo = new JComboBox<>(tipos);
-            JTextField precio = new JTextField();
+            JTextField txtNumero = new JTextField();
+            JTextField txtPrecio = new JTextField();
+            JComboBox<String> comboTipo = new JComboBox<>(new String[]{"Sencilla", "Doble", "Suite"});
 
             Object[] campos = {
-                    "Número:", numero,
-                    "Tipo:", tipo,
-                    "Precio:", precio
+                    "Número:", txtNumero,
+                    "Tipo:", comboTipo,
+                    "Precio:", txtPrecio
             };
 
-            int opcion = JOptionPane.showConfirmDialog(ventana, campos, "Agregar Habitación", JOptionPane.OK_CANCEL_OPTION);
-            if (opcion == JOptionPane.OK_OPTION) {
-                try {
-                    int n = Integer.parseInt(numero.getText());
+            int op = JOptionPane.showConfirmDialog(
+                    ventana, campos, "Agregar Habitación",
+                    JOptionPane.OK_CANCEL_OPTION
+            );
 
-                    boolean existe = Main.habitaciones.stream().anyMatch(h -> h.numero == n);
+            if (op == JOptionPane.OK_OPTION) {
+                try {
+                    int numero = Integer.parseInt(txtNumero.getText());
+                    double precio = Double.parseDouble(txtPrecio.getText());
+                    String tipo = (String) comboTipo.getSelectedItem();
+
+                    boolean existe = Main.habitaciones.stream()
+                            .anyMatch(h -> h.numero == numero);
+
                     if (existe) {
-                        JOptionPane.showMessageDialog(ventana, "Ya existe una habitación con ese número.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(ventana,
+                                "Ya existe una habitación con ese número.",
+                                "Error", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
-                    String t = (String) tipo.getSelectedItem();
-                    double p = Double.parseDouble(precio.getText());
-
-                    Main.habitaciones.add(new Habitacion(n, t, p));
+                    Main.habitaciones.add(new Habitacion(numero, tipo, precio));
                     Persistencia.guardar(Main.habitaciones, Main.ARCHIVO_HABITACIONES);
-                    cargarTabla.run(); // actualizar tabla
+                    cargarTabla.run();
+
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(ventana, "Datos incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(ventana,
+                            "Datos inválidos.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
 
         btnEliminar.addActionListener(e -> {
             int fila = tabla.getSelectedRow();
-            if (fila != -1) {
-                Habitacion h = Main.habitaciones.get(fila);
+            if (fila == -1) {
+                JOptionPane.showMessageDialog(ventana,
+                        "Seleccione una habitación.",
+                        "Atención", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
 
-                if (!h.disponible) {
-                    JOptionPane.showMessageDialog(ventana, "No se puede eliminar una habitación ocupada.", "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            Habitacion h = Main.habitaciones.get(fila);
 
-                int confirm = JOptionPane.showConfirmDialog(ventana, "¿Eliminar habitación " + h.numero + "?", "Confirmar", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    Main.habitaciones.remove(h);
-                    Persistencia.guardar(Main.habitaciones, Main.ARCHIVO_HABITACIONES);
-                    cargarTabla.run();
-                }
-            } else {
-                JOptionPane.showMessageDialog(ventana, "Seleccione una habitación para eliminar.", "Atención", JOptionPane.WARNING_MESSAGE);
+            if (!h.disponible) {
+                JOptionPane.showMessageDialog(ventana,
+                        "No se puede eliminar una habitación ocupada.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            int conf = JOptionPane.showConfirmDialog(
+                    ventana,
+                    "¿Eliminar habitación " + h.numero + "?",
+                    "Confirmar",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (conf == JOptionPane.YES_OPTION) {
+                Main.habitaciones.remove(h);
+                Persistencia.guardar(Main.habitaciones, Main.ARCHIVO_HABITACIONES);
+                cargarTabla.run();
             }
         });
 
+        btnCerrar.addActionListener(e -> ventana.dispose());
+
         ventana.setVisible(true);
     }
+
 }
+

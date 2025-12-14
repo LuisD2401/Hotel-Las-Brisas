@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 
 public class VentanaVentas extends JFrame {
 
+    private java.util.List<Venta> ventasCafeteria;
     private DefaultTableModel modelo;
     private JTable tabla;
 
@@ -42,13 +43,22 @@ public class VentanaVentas extends JFrame {
 
     private void cargarTabla() {
         modelo.setRowCount(0);
+        ventasCafeteria = new java.util.ArrayList<>();
+
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
         for (Venta v : Main.ventas) {
-            if (!"Cafetería".equals(v.tipo)) continue; // filtramos solo Cafetería
-            String tipo = v.tipo;
-            double monto = v.monto;
-            String fechaHora = v.fecha.format(df);
-            modelo.addRow(new Object[]{tipo, monto, fechaHora, "Ver Boleta", "Eliminar"});
+            if (!"Cafetería".equals(v.tipo)) continue;
+
+            ventasCafeteria.add(v);
+
+            modelo.addRow(new Object[]{
+                    v.tipo,
+                    "$" + String.format("%.0f", v.monto),
+                    v.fecha.format(df),
+                    "Ver Boleta",
+                    "Eliminar"
+            });
         }
     }
 
@@ -77,7 +87,11 @@ public class VentanaVentas extends JFrame {
 
             button.addActionListener(e -> {
                 if (verBoleta) {
-                    mostrarBoleta(row);
+                    Venta v = Main.ventas.stream()
+                            .filter(venta -> "Cafetería".equals(venta.tipo))
+                            .toList().get(row);
+
+                    mostrarBoletaGrande(v);
                 } else {
                     eliminarVenta(row);
                 }
@@ -95,46 +109,131 @@ public class VentanaVentas extends JFrame {
     }
 
     private void mostrarBoleta(int fila) {
-        if (fila < 0 || fila >= Main.ventas.size()) return;
-        // obtenemos solo ventas de cafetería
-        Venta v = Main.ventas.stream().filter(venta -> "Cafetería".equals(venta.tipo)).toList().get(fila);
+        if (fila < 0 || fila >= ventasCafeteria.size()) return;
 
-        StringBuilder boleta = new StringBuilder();
+        Venta v = ventasCafeteria.get(fila);
+
         DateTimeFormatter df = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-        boleta.append("=== BOLETA ===\n\n");
-        boleta.append("Tipo: ").append(v.tipo).append("\n");
-        boleta.append("Monto: $").append(String.format("%.2f", v.monto)).append("\n");
-        boleta.append("Medio de pago: ").append(v.medioPago).append("\n");
-        boleta.append("Fecha y hora: ").append(v.fecha.format(df)).append("\n\n");
+        StringBuilder b = new StringBuilder();
 
-        if (v.productos != null && v.cantidades != null && v.productos.size() == v.cantidades.size()) {
-            boleta.append("Detalles:\n");
-            double total = 0;
-            for (int i = 0; i < v.productos.size(); i++) {
-                ProductoCafeteria p = v.productos.get(i);
-                int c = v.cantidades.get(i);
-                double subtotal = p.precio * c;
-                total += subtotal;
-                boleta.append(String.format("- %s x%d = $%.2f\n", p.nombre, c, subtotal));
-            }
-            boleta.append("\nTotal calculado: $").append(String.format("%.2f", total)).append("\n");
+        b.append("══════════════════════════════\n");
+        b.append("      HOTEL LAS BRISAS\n");
+        b.append("         CAFETERÍA\n");
+        b.append("══════════════════════════════\n");
+        b.append("Fecha: ").append(v.fecha.format(df)).append("\n");
+        b.append("Pago: ").append(v.medioPago).append("\n");
+        b.append("--------------------------------\n");
+
+        double total = 0;
+
+        for (int i = 0; i < v.productos.size(); i++) {
+            ProductoCafeteria p = v.productos.get(i);
+            int c = v.cantidades.get(i);
+            double sub = p.precio * c;
+            total += sub;
+
+            b.append(String.format("%-15s x%-2d $%6.0f\n", p.nombre, c, sub));
         }
 
-        JOptionPane.showMessageDialog(this, boleta.toString(), "Boleta", JOptionPane.INFORMATION_MESSAGE);
+        b.append("--------------------------------\n");
+        b.append("TOTAL: $").append(String.format("%.0f", total)).append("\n");
+        b.append("\nGracias por su compra 💙\n");
+
+        JTextArea area = new JTextArea(b.toString());
+        area.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        area.setEditable(false);
+
+        JOptionPane.showMessageDialog(this, new JScrollPane(area),
+                "Boleta", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private void eliminarVenta(int fila) {
-        if (fila < 0 || fila >= Main.ventas.size()) return;
-        // obtenemos solo ventas de cafetería
-        Venta v = Main.ventas.stream().filter(venta -> "Cafetería".equals(venta.tipo)).toList().get(fila);
 
-        int confirm = JOptionPane.showConfirmDialog(this, "¿Eliminar esta venta?", "Confirmar", JOptionPane.YES_NO_OPTION);
-        if (confirm == JOptionPane.YES_OPTION) {
+    private void eliminarVenta(int fila) {
+        if (fila < 0 || fila >= ventasCafeteria.size()) return;
+
+        Venta v = ventasCafeteria.get(fila);
+
+        int op = JOptionPane.showConfirmDialog(this,
+                "¿Eliminar esta venta?",
+                "Confirmar",
+                JOptionPane.YES_NO_OPTION);
+
+        if (op == JOptionPane.YES_OPTION) {
             Main.ventas.remove(v);
             Persistencia.guardar(Main.ventas, Main.ARCHIVO_VENTAS);
             cargarTabla();
         }
     }
+    private void mostrarBoletaGrande(Venta v) {
+        JDialog dialog = new JDialog(this, "Boleta de Venta", true);
+        dialog.setSize(600, 700);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout());
+
+        JTextArea area = new JTextArea();
+        area.setEditable(false);
+        area.setFont(new Font("Monospaced", Font.PLAIN, 16));
+
+        StringBuilder b = new StringBuilder();
+        b.append("====================================\n");
+        b.append("        HOTEL LAS BRISAS\n");
+        b.append("              BOLETA\n");
+        b.append("====================================\n\n");
+
+        b.append("Fecha: ")
+                .append(v.fecha.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+                .append("\n");
+
+        b.append("Tipo: ").append(v.tipo).append("\n");
+        b.append("Medio de pago: ").append(v.medioPago).append("\n");
+
+        if (v.numeroHabitacion != -1) {
+            b.append("Habitación: ").append(v.numeroHabitacion).append("\n");
+        }
+
+        b.append("\n------------------------------------\n");
+        b.append("DETALLE\n");
+        b.append("------------------------------------\n");
+
+        double total = 0;
+        for (int i = 0; i < v.productos.size(); i++) {
+            ProductoCafeteria p = v.productos.get(i);
+            int c = v.cantidades.get(i);
+            double sub = p.precio * c;
+            total += sub;
+
+            b.append(String.format("%-20s x%2d $%7.2f\n",
+                    p.nombre, c, sub));
+        }
+
+        b.append("------------------------------------\n");
+        b.append(String.format("TOTAL: $%.2f\n", total));
+
+        if ("Efectivo".equals(v.medioPago)) {
+            b.append("Pago en efectivo\n");
+        }
+
+        b.append("\n====================================\n");
+        b.append("        ¡GRACIAS POR SU COMPRA!\n");
+        b.append("====================================\n");
+
+        area.setText(b.toString());
+
+        JScrollPane scroll = new JScrollPane(area);
+        dialog.add(scroll, BorderLayout.CENTER);
+
+        JButton btnCerrar = new JButton("Cerrar");
+        btnCerrar.setFont(new Font("Arial", Font.BOLD, 18));
+        btnCerrar.addActionListener(e -> dialog.dispose());
+
+        JPanel sur = new JPanel();
+        sur.add(btnCerrar);
+        dialog.add(sur, BorderLayout.SOUTH);
+
+        dialog.setVisible(true);
+    }
+
+
 }
 
 

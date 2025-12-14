@@ -63,7 +63,11 @@ public class HotelGUI extends JFrame {
         // ======================
         //      EVENTOS
         // ======================
-        btnHabitaciones.addActionListener(e -> new MenuHabitaciones());
+        btnHabitaciones.addActionListener(e -> {
+            dispose();              // cierra HotelGUI
+            new MenuHabitaciones(); // abre Habitaciones
+        });
+
         btnCafeteria.addActionListener(e -> {
             dispose();
             new MenuCafeteria();

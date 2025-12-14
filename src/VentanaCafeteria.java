@@ -1,6 +1,10 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 
 public class VentanaCafeteria extends JFrame {
 
@@ -8,194 +12,59 @@ public class VentanaCafeteria extends JFrame {
     private ArrayList<ProductoCafeteria> productosMostrados = new ArrayList<>();
     private JPanel panelProductos;
     private JLabel lblTotal;
-    private String categoria;
-    private JFrame padre;
-    private Carrito carrito = new Carrito();
-    private JPanel panelCategorias;
-
 
     public static void gestionarProductosEstatico() {
-        VentanaCafeteria v = new VentanaCafeteria();
-        v.setVisible(false);
-        v.abrirGestionProductos();
+        new VentanaCafeteria(true);
     }
-
-    public VentanaCafeteria() {
-        setTitle("Menú Cafetería");
-        setSize(800, 700);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
-
-        JPanel pnlCategorias = new JPanel(new GridLayout(3, 2, 25, 25));
-        pnlCategorias.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-
-        agregarBotonCategoria(pnlCategorias, "Bebidas Calientes");
-        agregarBotonCategoria(pnlCategorias, "Bebidas Frías");
-        agregarBotonCategoria(pnlCategorias, "Repostería/Panadería");
-        agregarBotonCategoria(pnlCategorias, "Snacks");
-        agregarBotonCategoria(pnlCategorias, "Postres");
-        agregarBotonCategoria(pnlCategorias, "Dulces");
-
-        add(pnlCategorias, BorderLayout.CENTER);
-
-        JButton btnVolver = new JButton("Volver al Menú Principal");
-        btnVolver.setFont(new Font("Arial", Font.BOLD, 22));
-        btnVolver.addActionListener(e -> {
-            dispose();
-            new MenuCafeteria();
-        });
-
-        JPanel pnlSur = new JPanel();
-        pnlSur.add(btnVolver);
-        add(pnlSur, BorderLayout.SOUTH);
-
-        setVisible(true);
-    }
-
-    private void agregarBotonCategoria(JPanel panel, String nombreCategoria) {
-        JButton btn = new JButton(nombreCategoria);
-        btn.setFont(new Font("Arial", Font.BOLD, 22));
-        btn.setBackground(new Color(178, 224, 216));
-        btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-        btn.setPreferredSize(new Dimension(150, 150));
-
-        btn.addActionListener(e -> {
-            // Abrimos nueva ventana de la categoría, pasando carrito actual
-            new VentanaCafeteria(nombreCategoria, this, carrito);
-            setVisible(false);
-        });
-
-        panel.add(btn);
-    }
-
-
     public VentanaCafeteria(boolean soloGestion) {
         if (!soloGestion) return;
+
         setTitle("Gestionar Productos");
         setSize(900, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
-        // Este panel no se usa, pero evita null pointers
-        panelProductos = new JPanel();
-        lblTotal = new JLabel("");
-        // 2) en el constructor (reemplaza la variable local por la de la clase)
-        panelCategorias = new JPanel(new GridLayout(2, 4, 20, 20));
-        panelCategorias.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        add(panelCategorias, BorderLayout.CENTER);
-        // NO cargamos productos aquí, porque abrirGestionProductos() lo hará }
+
+        abrirGestionProductos();
     }
 
-    public VentanaCafeteria(String categoria, JFrame padre, Carrito carrito) {
-        this.categoria = categoria;
-        this.padre = padre;
-        this.carrito = carrito;
-        setTitle("Productos - " + categoria);
-        setSize(800, 850);
+
+    public VentanaCafeteria() {
+
+        setTitle("Comprar en Cafetería");
+        setSize(900, 700);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         panelProductos = new JPanel();
         panelProductos.setLayout(new BoxLayout(panelProductos, BoxLayout.Y_AXIS));
-        add(new JScrollPane(panelProductos), BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(panelProductos);
+        add(scroll, BorderLayout.CENTER);
+
+        lblTotal = new JLabel("Total: $0.00");
+        lblTotal.setFont(new Font("Arial", Font.BOLD, 22));
+        lblTotal.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        add(lblTotal, BorderLayout.NORTH);
 
         JPanel panelSur = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnVolver = new JButton("Volver");
-        JButton btnAgregarCarrito = new JButton("Agregar al Carrito");
-        JButton btnVerCarrito = new JButton("Ver Carrito");
-        JButton btnComprar = new JButton("Comprar");
 
-        panelSur.add(btnVolver);
-        panelSur.add(btnAgregarCarrito);
-        panelSur.add(btnVerCarrito);
-        panelSur.add(btnComprar);
+        JButton btnFinalizar = new JButton("Finalizar Compra");
+        btnFinalizar.setFont(new Font("Arial", Font.BOLD, 22));
+        panelSur.add(btnFinalizar);
+
         add(panelSur, BorderLayout.SOUTH);
 
-        cargarProductos();
+        cargarProductos();   // 👈 MUY IMPORTANTE
+        actualizarTotal();   // 👈
 
-        btnVolver.addActionListener(e -> {
-            if (padre != null) padre.setVisible(true);
-            dispose();
-        });
-
-        btnAgregarCarrito.addActionListener(e -> {
-            for (int i = 0; i < spinners.size(); i++) {
-                int cantidad = (int) spinners.get(i).getValue();
-                ProductoCafeteria p = productosMostrados.get(i);
-                carrito.agregarProducto(p, cantidad);
-            }
-            JOptionPane.showMessageDialog(this, "Productos agregados al carrito.");
-        });
-        btnComprar.addActionListener(e -> {
-            for (int i = 0; i < spinners.size(); i++) {
-                int cantidad = (int) spinners.get(i).getValue();
-                ProductoCafeteria p = productosMostrados.get(i);
-                carrito.agregarProducto(p, cantidad); // carrito compartido actualizado
-            }
-            JOptionPane.showMessageDialog(this, "Productos agregados al carrito.", "Cafetería", JOptionPane.INFORMATION_MESSAGE);
-
-            // Mostrar ventana de categorías y carrito
-            if (padre != null) padre.setVisible(true);
-            carrito.setVisible(true);
-            dispose(); // cerrar ventana de productos
-        });
-
-        btnVerCarrito.addActionListener(e -> carrito.setVisible(true));
-
-        setVisible(true);
-    }
-
-
-    private void cargarProductos() {
-        panelProductos.removeAll();
-        spinners.clear();
-        productosMostrados.clear();
-
-        for (ProductoCafeteria p : Main.productos) {
-            if (!p.categoria.equalsIgnoreCase(categoria) || p.stock <= 0) continue;
-
-            JPanel fila = new JPanel(new GridBagLayout());
-            fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-            GridBagConstraints c = new GridBagConstraints();
-            c.gridy = 0;
-            c.anchor = GridBagConstraints.WEST;
-
-            c.gridx = 0;
-            JLabel lblNombre = new JLabel(p.nombre);
-            lblNombre.setFont(new Font("Arial", Font.BOLD, 20));
-            lblNombre.setPreferredSize(new Dimension(200, 25));
-            fila.add(lblNombre, c);
-
-            c.gridx = 1;
-            JLabel lblPrecio = new JLabel("$" + (int) p.precio);
-            lblPrecio.setFont(new Font("Arial", Font.PLAIN, 20));
-            lblPrecio.setPreferredSize(new Dimension(80, 25));
-            fila.add(lblPrecio, c);
-
-            c.gridx = 2;
-            JLabel lblStock = new JLabel("Stock: " + p.stock);
-            lblStock.setFont(new Font("Arial", Font.PLAIN, 20));
-            lblStock.setPreferredSize(new Dimension(120, 25));
-            fila.add(lblStock, c);
-
-            c.gridx = 3;
-            // Spinner inicializado en 0
-            JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, p.stock, 1));
-            spinner.setPreferredSize(new Dimension(60, 25));
-            spinner.setFont(new Font("Arial", Font.PLAIN, 16));
-
-            spinners.add(spinner);
-            productosMostrados.add(p);
-            fila.add(spinner, c);
-
-            panelProductos.add(fila);
+        // Actualizar total cuando cambia un spinner
+        for (JSpinner sp : spinners) {
+            sp.addChangeListener(e -> actualizarTotal());
         }
 
-        panelProductos.revalidate();
-        panelProductos.repaint();
+        btnFinalizar.addActionListener(e -> procesarCompra());
+
+        setVisible(true);
     }
 
 
@@ -293,35 +162,25 @@ public class VentanaCafeteria extends JFrame {
             JTextField precio = new JTextField();
             JTextField stock = new JTextField();
 
-            // Agregamos JComboBox para seleccionar categoría
-            String[] categorias = {
-                    "Bebidas Calientes"
-                    , "Bebidas Frías"
-                    , "Repostería/Panadería"
-                    , "Snacks"
-                    , "Postres"
-                    , "Dulces"
-            };
-            JComboBox<String> comboCategoria = new JComboBox<>(categorias);
             Object[] campos = {
                     "Nombre:", nombre,
                     "Precio:", precio,
-                    "Stock inicial:", stock,
-                    "Categoría:", comboCategoria
+                    "Stock inicial:", stock
             };
+
             int op = JOptionPane.showConfirmDialog(ventana, campos, "Agregar Producto", JOptionPane.OK_CANCEL_OPTION);
             if (op == JOptionPane.OK_OPTION) {
                 try {
                     String n = nombre.getText().trim();
                     double pr = Double.parseDouble(precio.getText());
                     int s = Integer.parseInt(stock.getText());
-                    String cat = (String) comboCategoria.getSelectedItem();
-                    // nueva categoría
-                    if (n.isEmpty() || pr < 0 || s < 0 || cat == null) throw new Exception();
-                    // Crear producto con categoría
-                    Main.productos.add(new ProductoCafeteria(n, pr, s, cat));
+
+                    if (n.isEmpty() || pr < 0 || s < 0) throw new Exception();
+
+                    // Crear producto SIN categoría
+                    Main.productos.add(new ProductoCafeteria(n, pr, s));
                     Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
-                    construirFilas.run();
+                    construirFilas.run();  // Actualiza la lista de productos
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(ventana, "Datos inválidos.", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -364,29 +223,190 @@ public class VentanaCafeteria extends JFrame {
         ventana.add(botones, BorderLayout.SOUTH);
         ventana.setVisible(true);
     }
+    private void cargarProductos() {
+        panelProductos.removeAll();
+        spinners.clear();
+        productosMostrados.clear();
 
-    // usa getResource (empaquetado en JAR)
-    private ImageIcon cargarIcono(String resourcePath, int w, int h) {
-        try {
-            java.net.URL url = getClass().getResource(resourcePath);
-            if (url == null) return null;
-            ImageIcon original = new ImageIcon(url);
-            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
-            return new ImageIcon(img);
-        } catch (Exception e) {
-            return null;
+        for (ProductoCafeteria p : Main.productos) {
+            if (p.stock <= 0) continue;  // Omitir productos sin stock
+
+            JPanel fila = new JPanel(new GridBagLayout());
+            fila.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridy = 0;
+            c.anchor = GridBagConstraints.WEST;
+
+            // Nombre del producto
+            c.gridx = 0;
+            JLabel lblNombre = new JLabel(p.nombre);
+            lblNombre.setFont(new Font("Arial", Font.BOLD, 20));
+            lblNombre.setPreferredSize(new Dimension(200, 25));
+            fila.add(lblNombre, c);
+
+            // Precio
+            c.gridx = 1;
+            JLabel lblPrecio = new JLabel("$" + (int)p.precio);
+            lblPrecio.setFont(new Font("Arial", Font.PLAIN, 20));
+            lblPrecio.setPreferredSize(new Dimension(80, 25));
+            fila.add(lblPrecio, c);
+
+            // Stock
+            c.gridx = 2;
+            JLabel lblStock = new JLabel("Stock: " + p.stock);
+            lblStock.setFont(new Font("Arial", Font.PLAIN, 20));
+            lblStock.setPreferredSize(new Dimension(120, 25));
+            fila.add(lblStock, c);
+
+            // Cantidad a comprar
+            c.gridx = 3;
+            JSpinner spinner = new JSpinner(new SpinnerNumberModel(0, 0, p.stock, 1));
+            spinner.setPreferredSize(new Dimension(60, 25));
+            spinner.setFont(new Font("Arial", Font.PLAIN, 16));
+            spinner.addChangeListener(e -> actualizarTotal());
+            spinners.add(spinner);
+            productosMostrados.add(p);
+            fila.add(spinner, c);
+
+            panelProductos.add(fila);
         }
+
+        panelProductos.revalidate();
+        panelProductos.repaint();
+    }
+    private void procesarCompra() {
+
+        double total = 0;
+        StringBuilder detalle = new StringBuilder();
+
+        // Fecha y hora
+        LocalDateTime ahora = LocalDateTime.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        detalle.append("──────── HOTEL LAS BRISAS ────────\n");
+        detalle.append("            CAFETERÍA\n\n");
+        detalle.append("Fecha: ").append(formato.format(ahora)).append("\n\n");
+        detalle.append("---------------------------------\n");
+
+        // Productos comprados
+        for (int i = 0; i < spinners.size(); i++) {
+            int cantidad = (int) spinners.get(i).getValue();
+            ProductoCafeteria p = productosMostrados.get(i);
+
+            if (cantidad > 0) {
+                double subtotal = cantidad * p.precio;
+                total += subtotal;
+
+                detalle.append(String.format(
+                        "%-15s x%-2d $%7.0f\n",
+                        p.nombre,
+                        cantidad,
+                        subtotal
+                ));
+            }
+        }
+
+        if (total == 0) {
+            JOptionPane.showMessageDialog(this, "No seleccionó productos.");
+            return;
+        }
+
+        detalle.append("---------------------------------\n");
+        detalle.append(String.format("TOTAL:              $%7.0f\n\n", total));
+
+        // Método de pago
+        String[] opciones = {"Efectivo", "Débito"};
+        int pago = JOptionPane.showOptionDialog(
+                this,
+                "Seleccione método de pago",
+                "Pago",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (pago == -1) return;
+
+        if (pago == 0) { // EFECTIVO
+            String montoStr = JOptionPane.showInputDialog(this, "¿Con cuánto paga?");
+            try {
+                double monto = Double.parseDouble(montoStr);
+                if (monto < total) {
+                    JOptionPane.showMessageDialog(this, "Monto insuficiente.");
+                    return;
+                }
+
+                double vuelto = monto - total;
+                detalle.append("Pago: Efectivo\n");
+                detalle.append(String.format("Recibido:           $%7.0f\n", monto));
+                detalle.append(String.format("Vuelto:             $%7.0f\n", vuelto));
+
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Monto inválido.");
+                return;
+            }
+        } else { // DÉBITO
+            detalle.append("Pago: Débito\n");
+            detalle.append("Recibido:           $").append(String.format("%.0f", total)).append("\n");
+            detalle.append("Vuelto:             $0\n");
+        }
+
+        detalle.append("\n¡Gracias por su compra!\n");
+        detalle.append("---------------------------------");
+
+        // Descontar stock
+        for (int i = 0; i < spinners.size(); i++) {
+            int cantidad = (int) spinners.get(i).getValue();
+            ProductoCafeteria p = productosMostrados.get(i);
+            if (cantidad > 0) {
+                p.stock -= cantidad;
+            }
+        }
+
+        Persistencia.guardar(Main.productos, Main.ARCHIVO_PRODUCTOS);
+
+        // Mostrar boleta
+        JTextArea area = new JTextArea(detalle.toString());
+        area.setFont(new Font("Monospaced", Font.PLAIN, 14));
+        area.setEditable(false);
+
+        JOptionPane.showMessageDialog(
+                this,
+                new JScrollPane(area),
+                "Boleta de Venta",
+                JOptionPane.INFORMATION_MESSAGE
+        );
+        // ===== REGISTRAR VENTA =====
+        ArrayList<ProductoCafeteria> vendidos = new ArrayList<>();
+        ArrayList<Integer> cantidades = new ArrayList<>();
+
+        for (int i = 0; i < spinners.size(); i++) {
+            int cant = (int) spinners.get(i).getValue();
+            if (cant > 0) {
+                vendidos.add(productosMostrados.get(i));
+                cantidades.add(cant);
+            }
+        }
+
+        Venta venta = new Venta(
+                total,
+                "Cafetería",
+                pago == 0 ? "Efectivo" : "Débito",
+                "Boleta",
+                -1,
+                vendidos,
+                cantidades
+        );
+
+        Main.ventas.add(venta);
+        Persistencia.guardar(Main.ventas, Main.ARCHIVO_VENTAS);
+
+
+        dispose();
     }
 
-    // alternativa por archivo (sólo durante desarrollo, evita en JAR)
-    private ImageIcon cargarIconoArchivo(String path, int w, int h) {
-        try {
-            ImageIcon original = new ImageIcon(path);
-            if (original.getIconWidth() == -1) return null;
-            Image img = original.getImage().getScaledInstance(w, h, Image.SCALE_SMOOTH);
-            return new ImageIcon(img);
-        } catch (Exception e) {
-            return null;
-        }
-    }
+
+
 }

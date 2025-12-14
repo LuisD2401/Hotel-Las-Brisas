@@ -66,17 +66,7 @@ public class MenuCafeteria extends JFrame {
         //            ACCIONES
         // ===============================
         btnComprar.addActionListener(e -> {
-            dispose(); // Cierra esta ventana
-
-            // Crear carrito compartido
-            Carrito carrito = new Carrito();
-
-            // Abrir ventana de categorías pasándole el carrito
-            CategoriasCafeteria categorias = new CategoriasCafeteria(carrito);
-            categorias.setVisible(true);
-
-            // Abrir también la ventana del carrito
-            carrito.setVisible(true);
+            new VentanaCafeteria();
         });
 
 
