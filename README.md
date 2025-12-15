@@ -18,13 +18,25 @@ Cafeteria:
 - Lenguaje: Java SE
 - Interfaz Gráfica: Swing
 - Persistencia: Serialización de objetos (archivo binario)
-
+## Instalación
+1) Importar el proyecto en tu IDE favorito (IntelliJ IDEA, Eclipse, NetBeans)
+2) Asegurarse de que el JDK esté configurado correctamente
+3) Ejecutar la clase Main.java
+## Acceso
+Hay diversas funcionalidades que requieren una clave para usarlas. La clave es 123.
 ## Uso del sistema
-<img width="1855" height="1021" alt="image" src="https://github.com/user-attachments/assets/d9e32092-b70a-494e-a917-5f6b1fc1843b" />
-Al iniciar la aplicación nos encontramos con este menu que nos permite elegir si el proceso sera la reserva de habitaciones o la venta en la cafetería.
-
-
-<img width="1853" height="1015" alt="image" src="https://github.com/user-attachments/assets/e1c99509-dc92-4cb7-95cb-376d394cce97" />
-Estas 3 opciones permiten la realización de una reserva, la gestión de las habitaciones y ver el listado de reservas.
-<img width="1851" height="1020" alt="image" src="https://github.com/user-attachments/assets/e5a7d6d1-4e7e-4dac-9e9c-0f6ce988da9f" />
-Estas 3 opciones permiten la realización de una venta, la gestión de inventario y ver el listado de ventas.
+Al iniciar la aplicación aparece un menú con 2 opciones:
+-  Habitaciones: Abre la sección de gestión de reservas y habitaciones.
+-  Cafetería: Abre la sección de gestion de ventas y productos de la cafetería.
+### Habitaciones
+- Hacer reserva: Formulario para ingresar datos del huesped, los dias de estadia y para elegír habitación. Muestra detalles de la habitación al final. Luego se elige el metodo de pago y la cantidad con la que se pagara. Finalmente se imprime la boleta.
+- Gestionar habitaciones y reservas: Pide contraseña. Tabla de las habitaciones mostrando Numero, Tipo, Precio y Disponibilidad. Abajo botones para agregar o eliminar habitaciones, anular reservas o cerrar la pestaña.
+- Ver Reservas: Pide contraseña. Tabla con todas las reservaciones mostrando  Numero de la habitación, Rut del huesped, Fecha, Estado de la reserva y opción de ver la boleta. Al final 2 botones para eliminar una venta y cerrar la pestaña.
+- Volver al menu principal: Vuelve al menu de inicio.
+- Salir: Cierra el programa.
+### Cafetería
+- Venta en Cafetería: Lista de productos a la venta con precio y stocl y la capacidad de añadirlos al carrito. Al final boton para pagar que abre una pestaña preguntando metodo de pago y luego cantidad con la que se paga. Luego muestra la boleta.
+- Gestionar Productos: Lista con todos los productos disponibles, su stock actual y botones para aumentar o disminuir el stock de cada producto en cantidades de 1 o 5. Al final hay botones para agregar o eliminar productos y cerrar la pestaña. Al agregar un producto pide Nombre, Precio y Stock inicial. Al elegir eliminar muestra una lista con los nombres de todos los productos para elegir el que se desea eliminar.
+- Ver ventas: Pide contraseña. Tabla con tipo de venta, Monto, Fecha y Hora, boton para ver la boleta y boton para eliminar la venta de la lista.
+- Volver al menu principal: Vuelve al menu de inicio.
+- Salir: Cierra el programa.
