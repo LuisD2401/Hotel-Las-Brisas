@@ -13,6 +13,8 @@ Cafeteria:
 - Realizar ventas de productos y aceptar pagos en efectivo o debito entregando boleta.
 - Gestionar el inventario entregando las opciones de crear y eliminar productos y editando su inventario.
 - Revisar una lista de todas las ventas hechas con la posibilidad de revisar las boletas y eliminar las ventas del inventario.
+## Diagrama de Clases
+![Diagrama en blanco](https://github.com/user-attachments/assets/a7488ed4-1a37-4bc2-8e94-d2354d605026)
 
 ## Tecnologías usadas
 - Lenguaje: Java SE
@@ -22,6 +24,7 @@ Cafeteria:
 1) Importar el proyecto en tu IDE favorito (IntelliJ IDEA, Eclipse, NetBeans)
 2) Asegurarse de que el JDK esté configurado correctamente
 3) Ejecutar la clase Main.java
+*En caso de que el proyecto se cuelgue aleatoriamente eliminar la carpeta del computador y del IDE y clonarlo nuevamente.
 ## Acceso
 Hay diversas funcionalidades que requieren una clave para usarlas. La clave es 123.
 ## Uso del sistema
