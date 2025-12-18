@@ -58,7 +58,7 @@ public class VentanaVentasH extends JFrame {
         panelBotones.add(btnCerrar);
 
 // NUEVO BOTON ELIMINAR
-        JButton btnEliminarVenta = new JButton("Eliminar Venta");
+        JButton btnEliminarVenta = new JButton("Eliminar Reserva");
         btnEliminarVenta.setFont(new Font("Arial", Font.BOLD, 22));
         panelBotones.add(btnEliminarVenta);
 

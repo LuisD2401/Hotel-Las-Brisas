@@ -17,7 +17,7 @@ public class VentanaVentas extends JFrame {
 
 
         // Modelo de tabla: Tipo | Monto | Fecha y Hora | Ver Boleta | Eliminar
-        modelo = new DefaultTableModel(new Object[]{"Tipo", "Monto", "Fecha y Hora", "Ver Boleta", "Eliminar"}, 0) {
+        modelo = new DefaultTableModel(new Object[]{" ", "Monto", "Fecha y Hora", "Ver Boleta", "Eliminar"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column >= 3;
