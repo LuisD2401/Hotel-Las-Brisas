@@ -1,3 +1,4 @@
+*La versión final se encuentra en la rama llamada "Alex"
 # Sistema de Reserva y Venta del hotel Las Brisas
 
 Esta aplicación es un sistema de gestion de las reservas de habitaciones y las ventas en cafeteria para el hotel Las Brisas desde el lado del recepcionista o vendedor respectivamente. 
